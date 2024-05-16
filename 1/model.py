@@ -105,20 +105,19 @@ class TritonPythonModel:
         for request in requests:
             in_input = pb_utils.get_input_tensor_by_name(request, "IN").as_numpy()
 
-            if self.reset_flag:
-                self.remaining_response = in_input[0]
-                self.reset_flag = False
+
+            remaining_response = in_input[0]
 
             response_sender = request.get_response_sender()
 
-            self.remaining_response -= 1
+            remaining_response -= 1
 
             out_output = pb_utils.Tensor(
                 "OUT", np.array([self.remaining_response], np.int32)
             )
             response = pb_utils.InferenceResponse(output_tensors=[out_output])
 
-            if self.remaining_response <= 0:
+            if remaining_response <= 0:
                 response_sender.send(
                     response, flags=pb_utils.TRITONSERVER_RESPONSE_COMPLETE_FINAL
                 )
