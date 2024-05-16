@@ -123,7 +123,7 @@ class TritonPythonModel:
                     response, flags=pb_utils.TRITONSERVER_RESPONSE_COMPLETE_FINAL
                 )
             else:
-            	self.reset_flag = True
+                self.reset_flag = True
                 request.set_release_flags(
                     pb_utils.TRITONSERVER_REQUEST_RELEASE_RESCHEDULE
                 )
