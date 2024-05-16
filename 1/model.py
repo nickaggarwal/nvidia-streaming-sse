@@ -105,23 +105,25 @@ class TritonPythonModel:
         for request in requests:
             in_input = pb_utils.get_input_tensor_by_name(request, "IN").as_numpy()
 
-
-            remaining_response = in_input[0]
+            if self.reset_flag:
+                self.remaining_response = in_input[0]
+                self.reset_flag = False
 
             response_sender = request.get_response_sender()
 
-            remaining_response -= 1
+            self.remaining_response -= 1
 
             out_output = pb_utils.Tensor(
                 "OUT", np.array([self.remaining_response], np.int32)
             )
             response = pb_utils.InferenceResponse(output_tensors=[out_output])
 
-            if remaining_response <= 0:
+            if self.remaining_response <= 0:
                 response_sender.send(
                     response, flags=pb_utils.TRITONSERVER_RESPONSE_COMPLETE_FINAL
                 )
             else:
+            	self.reset_flag = True
                 request.set_release_flags(
                     pb_utils.TRITONSERVER_REQUEST_RELEASE_RESCHEDULE
                 )
